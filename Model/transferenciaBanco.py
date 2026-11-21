@@ -16,9 +16,14 @@ def depositoBanco(valor: float, idBanco: int, categID: int):
     conexao = sqlite3.connect('bot.db')
     cursor = conexao.cursor()
 
-    cursor.execute('''
-    UPDATE BANCOS_USUARIO set saldoBanco = saldoBanco + ? where bancoID = ?
-''', (valor, idBanco))
+    if categID == 11:
+        cursor.execute('''
+        UPDATE BANCOS_USUARIO set saldoBanco = saldoBanco + ? where bancoID = ?
+    ''', (valor, idBanco))
+    elif categID == 12:
+        cursor.execute('''
+        UPDATE BANCOS_USUARIO set cofrinhoBanco = cofrinhoBanco + ? where bancoID = ?
+    ''', (valor, idBanco))
 
     if cursor.rowcount > 0:
         cursor.execute('''
@@ -26,7 +31,7 @@ def depositoBanco(valor: float, idBanco: int, categID: int):
 ''', (valor, categID, idBanco))
 
     conexao.commit()
-    
+
     cursor.close()
     conexao.close()
 

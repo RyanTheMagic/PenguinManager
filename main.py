@@ -164,7 +164,50 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                                          parse_mode="HTML")
 
             ## ----- FUNÇÃO DEPOSITO ----
-                
+            @bot.callback_query_handler(func=lambda clique: clique.data.startswith('deposito'))    
+            def menuCategDepos(clique: types.CallbackQuery):
+                bot.answer_callback_query(clique.id)
+                bancoID = int(clique.data.split(':')[1])
+
+                tecladoCategDepos = types.InlineKeyboardMarkup(row_width=3)
+
+                botoes = []
+
+                for categoria in especificarTipoTransfCateg(1):
+                    botaoCateg = types.InlineKeyboardButton(
+                        f"{categoria['nomeCategoria']}",
+                        callback_data=f"{categoria['categID']}:{bancoID}"
+                    )
+                    botoes.append(botaoCateg)
+
+                tecladoCategDepos.add(*botoes)
+
+                bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - DEPÓSITO 💵❇️</b>\nEscolha a categória para qual você vai investir\no valor do Depósito:",
+                                 parse_mode="HTML",
+                                 reply_markup=tecladoCategDepos)
+
+                @bot.callback_query_handler(func=lambda clique: int(clique.data.split(':')[0]) == 11)
+                def digitarValor(clique: types.CallbackQuery):
+                    bot.answer_callback_query(clique.id)
+                    bancoID = int(clique.data.split(':')[1])
+                    categID = int(clique.data.split(':')[0])
+
+                    mensagem = bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SALDO EM CONTA 💵❇️</b>\nDigite o valor do depósito:",
+                                                parse_mode="HTML")
+
+                    bot.register_next_step_handler(mensagem, processarValor, bancoID, categID)
+                def processarValor(msg: types.Message, bancoID: int, categID: int):
+                    saldoAtual = especificarBanco(bancoID)['saldoBanco']
+                    valorDep = float(msg.text)
+                    depositoBanco(valorDep, bancoID, categID)
+
+                    if (valorDep <= 0):
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SALDO EM CONTA 💵❇️</b>\nDepósito não pode ser realizado com valor negativo ou 0",
+                                         parse_mode="HTML")
+                    else:
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SALDO EM CONTA 💵❇️</b>\nSaldo Anterior: {saldoAtual}\nSaldo Atual: {especificarBanco(bancoID)['saldoBanco']}",
+                                        parse_mode="HTML")
+
 
                 #@bot.callback_query_handler(func=lambda clique: clique.data == 'transferenciaData' bancoID: bancoID)
             #def digitarValorTransf(bancoID: bancoID, clique: types.CallbackQuery):
