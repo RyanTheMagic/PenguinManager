@@ -12,7 +12,7 @@ def transferenciaBanco(valor: float, idBanco: int):
     cursor.close()
     conexao.close()
 
-def depositoBanco(valor: float, idBanco: int):
+def depositoBanco(valor: float, idBanco: int, categID: int):
     conexao = sqlite3.connect('bot.db')
     cursor = conexao.cursor()
 
@@ -20,11 +20,17 @@ def depositoBanco(valor: float, idBanco: int):
     UPDATE BANCOS_USUARIO set saldoBanco = saldoBanco + ? where bancoID = ?
 ''', (valor, idBanco))
 
+    if cursor.rowcount > 0:
+        cursor.execute('''
+        INSERT INTO RELATORIO_MOVIMENTACOES (valorMov, categID, bancoID) values (?,?,?)
+''', (valor, categID, idBanco))
+
     conexao.commit()
+    
     cursor.close()
     conexao.close()
 
-def saqueBanco(valor: float, idBanco: int):
+def saqueBanco(valor: float, idBanco: int, categID: int):
     conexao = sqlite3.connect('bot.db')
     cursor = conexao.cursor()
 
@@ -32,7 +38,13 @@ def saqueBanco(valor: float, idBanco: int):
     UPDATE BANCOS_USUARIO set saldoBanco = saldoBanco - ? where bancoID = ? and saldoBanco >= ?
 ''', (valor, idBanco, valor))
 
+    if cursor.rowcount > 0:
+        cursor.execute('''
+        INSERT INTO RELATORIO_MOVIMENTACOES (valorMov, categID, bancoID) values (?,?,?)
+    ''', (valor, categID, idBanco))
+
     conexao.commit()
+
     cursor.close()
     conexao.close()
 

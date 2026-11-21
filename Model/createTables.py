@@ -27,7 +27,6 @@ cursor.executescript('''
         data_hora TEXT DEFAULT (strftime('%d-%m-%Y %H:%M:%S', 'now', 'localtime')),
         categID integer not null,
         bancoID integer not null,
-        tipoTransf integer not null,
         foreign key (categID) references CATEGORIAS_TRANSFERENCIA(categID),
         foreign key (bancoID) references BANCOS_USUARIO(bancoID)
     );

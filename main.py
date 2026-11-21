@@ -9,6 +9,7 @@ from Model.listarBancos import listarBancos
 from Model.listarCategoriasTransf import listarCategoriasTransf
 from Model.especificarBanco import especificarBanco
 from Model.especificarTipoTransfCateg import especificarTipoTransfCateg
+from Model.especificarCateg import especificarCateg
 
 load_dotenv()
 
@@ -83,16 +84,38 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
 
             tecladoEspecBanco = types.InlineKeyboardMarkup(row_width=2)
 
-            botaoTransferencia = types.InlineKeyboardButton(
+            botaoSaque = types.InlineKeyboardButton(
                 "Saque 💵⛔",
                 callback_data=f"saque:{bancoID}"
             )
-            tecladoEspecBanco.add(botaoTransferencia)
+
+            botaoDeposito = types.InlineKeyboardButton(
+                "Depósito 💵❇️",
+                callback_data=f"deposito:{bancoID}"
+            )
+
+            botaoGuardarDin = types.InlineKeyboardButton(
+                "Guardar R$ 🐖❇️",
+                callback_data=f"guardardin:{bancoID}"
+            )
+
+            botaoResgatarCofre = types.InlineKeyboardButton(
+                "Sacar Cofre ⛔🐖",
+                callback_data=f"resgatarcofre:{bancoID}"
+            )
+
+            botaoTransfBanco = types.InlineKeyboardButton(
+                "Transf. Entre Bancos 🏦➡️🏦",
+                callback_data=f"transfbanco:{bancoID}"
+            )
+
+            tecladoEspecBanco.add(botaoSaque, botaoDeposito,botaoGuardarDin,botaoResgatarCofre,botaoTransfBanco)
 
             bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - {especificarBanco(int(bancoID))['nomeBanco'].upper()} {especificarBanco(int(bancoID))['emojiBanco']}</b>\nOlá, você está realizando Operações no Banco do {especificarBanco(int(bancoID))['nomeBanco']} {especificarBanco(int(bancoID))['emojiBanco']}",
                              reply_markup=tecladoEspecBanco,
                              parse_mode="HTML")
 
+            ## ----- FUNÇÃO SAQUE ----
             @bot.callback_query_handler(func=lambda clique: clique.data.startswith('saque'))
             def menuCategSaque(clique: types.CallbackQuery):
                 bot.answer_callback_query(clique.id)
@@ -130,15 +153,17 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                     valorSaque = float(msg.text)
 
                     if (valorSaque > saldoAtual):
-                        bot.send_message(msg.chat.id,f'<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\nO valor da tentativa de Saque é maior que o valor em conta.',
+                        bot.send_message(msg.chat.id,f'<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\nSaldo Atual: {saldoAtual}\nValor Saque: {valorSaque}\n\nSaldo Insuficiente para realização do Saque.',
                                          parse_mode="HTML")
                     elif (valorSaque <= 0):
-                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\nSaldo Insuficiente para realização do Saque.\nSaldo Atual: {saldoAtual}\nValor Saque: {valorSaque}",
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\nValor do Saque não pode ser menor ou igual a 0",
                                          parse_mode="HTML")
                     else:
-                        saqueBanco(valorSaque,bancoID)
-                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SAQUE REALIZADO 💵⛔</b>\nSaldo anterior: {saldoAtual}\nSaldo Atual: {especificarBanco(bancoID)['saldoBanco']}",
+                        saqueBanco(valorSaque,bancoID, categID)
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SAQUE REALIZADO 💵⛔</b>\n\nBanco: {especificarBanco(bancoID)['nomeBanco']} {especificarBanco(bancoID)['emojiBanco']}\nCategoria: {especificarCateg(categID)['nomeCategoria']} {especificarCateg(categID)['emojiCategoria']}\nSaque: R${valorSaque}\nSaldo Atual: R${especificarBanco(bancoID)['saldoBanco']}",
                                          parse_mode="HTML")
+
+            ## ----- FUNÇÃO DEPOSITO ----
                 
 
                 #@bot.callback_query_handler(func=lambda clique: clique.data == 'transferenciaData' bancoID: bancoID)
