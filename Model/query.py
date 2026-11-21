@@ -6,7 +6,7 @@ def query():
     cursor = conexao.cursor()
 
     cursor.execute('''
-    insert into categorias_transferencia (nomeCategoria, tipoTransf, emojiCategoria) values ('Moradia', 0, '🏠');
+    insert into CATEGORIAS_TRANSFERENCIA(nomeCategoria,tipoTransf,emojiCategoria) values ('Porquinho',1,'🐖');
 ''')
 
     conexao.commit()

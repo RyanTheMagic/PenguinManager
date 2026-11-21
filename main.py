@@ -6,6 +6,7 @@ from Model.transferenciaBanco import transferenciaBanco
 from Model.listarBancos import listarBancos
 from Model.listarCategoriasTransf import listarCategoriasTransf
 from Model.especificarBanco import especificarBanco
+from Model.especificarTipoTransfCateg import especificarTipoTransfCateg
 
 load_dotenv()
 
@@ -16,7 +17,7 @@ def testeMenu(msg: types.Message):
     tecladoTeste = types.InlineKeyboardMarkup(row_width=3)
     
     botoes = []
-    for categoria in listarCategoriasTransf():
+    for categoria in especificarTipoTransfCateg(0):
         botao = types.InlineKeyboardButton(
             f"{categoria['nomeCategoria']}",
             callback_data=str({categoria['categID']})
@@ -35,7 +36,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
     tecladoMenuPrincipal = types.InlineKeyboardMarkup(row_width=2) #Cria teclado do Menu
 
     botao_nome = types.InlineKeyboardButton(
-        "Gerenciar Bancos",
+        "Bancos 🪙",
         callback_data="manager_banco" #ID do Botão
     )
     botao_sobre = types.InlineKeyboardButton(
@@ -105,7 +106,6 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                 transferenciaBanco(valorTransf, bancoID)
                 banco = especificarBanco(bancoID)
                 bot.send_message(msg.chat.id,f"Saldo: {banco['saldoBanco']}")
-                mostrarMenuPrincipal('menu')
 
                 #@bot.callback_query_handler(func=lambda clique: clique.data == 'transferenciaData' bancoID: bancoID)
             #def digitarValorTransf(bancoID: bancoID, clique: types.CallbackQuery):
