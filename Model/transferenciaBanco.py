@@ -1,4 +1,5 @@
 import sqlite3
+from . import especificarBanco
 
 def transferenciaBanco(valor: float, idBanco: int):
     conexao = sqlite3.connect('bot.db')
@@ -54,3 +55,33 @@ def saqueBanco(valor: float, idBanco: int, categID: int):
     conexao.close()
 
     return cursor.rowcount == 1
+
+def guardarDinheiro(valor: float, idBanco: int):
+    conexao = sqlite3.connect('bot.db')
+    cursor = conexao.cursor()
+
+    saldoAtual = especificarBanco.especificarBanco(idBanco)['saldoBanco']
+
+    if (valor > saldoAtual):
+        conexao.close()
+        cursor.close()
+        return False
+    else:
+        cursor.execute('''
+        UPDATE BANCOS_USUARIO set 
+        saldoBanco = saldoBanco - ?,
+        cofrinhoBanco = cofrinhoBanco + ?
+        WHERE bancoID = ? and saldoBanco >= ?
+    ''', (valor, valor, idBanco, valor))
+        if cursor.rowcount > 0:
+            cursor.execute('''
+            INSERT INTO RELATORIO_MOVIMENTACOES (valorMov, categID, bancoID) values (?,?,?)
+        ''', (valor, 8 ,idBanco))
+
+        conexao.commit()
+
+    cursor.close()
+    conexao.close()
+
+    return cursor.rowcount == 1
+        
