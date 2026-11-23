@@ -63,8 +63,8 @@ def guardarDinheiro(valor: float, idBanco: int):
     saldoAtual = especificarBanco.especificarBanco(idBanco)['saldoBanco']
 
     if (valor > saldoAtual):
-        conexao.close()
         cursor.close()
+        conexao.close()
         return False
     else:
         cursor.execute('''
@@ -84,4 +84,30 @@ def guardarDinheiro(valor: float, idBanco: int):
     conexao.close()
 
     return cursor.rowcount == 1
-        
+
+def sacarCofre(valor: float, idBanco: int):
+    conexao = sqlite3.connect('bot.db')
+    cursor = conexao.cursor()
+    cofreAtual = especificarBanco.especificarBanco(idBanco)['cofrinhoBanco']
+
+    if (valor > cofreAtual):
+        cursor.close()
+        conexao.close()
+        return False
+    else:
+        cursor.execute('''
+        UPDATE BANCOS_USUARIO set
+        saldoBanco = saldoBanco + ?,
+        cofrinhoBanco = cofrinhoBanco - ?
+        WHERE bancoID = ? and cofrinhoBanco >= ?
+        ''', (valor,valor,idBanco,valor))
+        if cursor.rowcount > 0:
+            cursor.execute('''
+            INSERT INTO RELATORIO_MOVIMENTACOES (valorMov, categID, bancoID) values(?,?,?)
+            ''', (valor,10,idBanco))
+
+        conexao.commit()
+
+    cursor.close()
+    conexao.close()
+    return cursor.rowcount == 1

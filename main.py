@@ -6,6 +6,7 @@ from Model.transferenciaBanco import transferenciaBanco
 from Model.transferenciaBanco import saqueBanco
 from Model.transferenciaBanco import depositoBanco
 from Model.transferenciaBanco import guardarDinheiro
+from Model.transferenciaBanco import sacarCofre
 from Model.listarBancos import listarBancos
 from Model.listarCategoriasTransf import listarCategoriasTransf
 from Model.especificarBanco import especificarBanco
@@ -259,7 +260,30 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                     bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - GUARDAR R$ 🐖❇️</b>\n\n<b>Investimento Realizado</b>",
                                                          parse_mode="HTML")
 
-                    
+            @bot.callback_query_handler(func=lambda clique: clique.data.startswith('resgatarcofre'))
+            def digitarValorResgatar(clique:types.CallbackQuery):
+                bot.answer_callback_query(clique.id)
+                bancoID = int(clique.data.split(':')[1])
+                cofreDisponivel = especificarBanco(bancoID)['cofrinhoBanco']
+
+                mensagem = bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SACAR COFRE ⛔🐖</b>\n\nSaldo Disponível: R${cofreDisponivel}\nDigite o valor que deseja resgatar no cofre:",
+                                            parse_mode="HTML")
+
+                bot.register_next_step_handler(mensagem, processarValorResgatar, bancoID)
+
+            def processarValorResgatar(msg: types.Message, bancoID: int):
+                valorResgatado = float(msg.text)
+                saldoAtual = especificarBanco(bancoID)['saldoBanco']
+                cofreAtual = especificarBanco(bancoID)['cofrinhoBanco']
+
+                if (valorResgatado > cofreAtual):
+                    bot.send_message(msg.chat.id, f"<b>PENGUIN BOT - SACAR COFRE ⛔🐖</b>\n\n<b>FALHA AO SACAR ❌</b>\n<i>O valor informado é maior que o Saldo no Cofre</i>",
+                                     parse_mode="HTML")
+                else:
+                    sacarCofre(valorResgatado,bancoID)
+                    bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SACAR COFRE ⛔🐖</b>\n\nSaldo Anterior: {saldoAtual}\nSaldo Atual: {especificarBanco(bancoID)['saldoBanco']}\nCofre Anterior: {cofreAtual}\nCofre Atual: {especificarBanco(bancoID)['cofrinhoBanco']}",
+                                     parse_mode="HTML")
+
 
 
 
