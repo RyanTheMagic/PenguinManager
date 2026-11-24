@@ -9,6 +9,7 @@ from Model.transferenciaBanco import guardarDinheiro
 from Model.transferenciaBanco import sacarCofre
 from Model.listarBancos import listarBancos
 from Model.listarCategoriasTransf import listarCategoriasTransf
+from Model.buscarUltMov import buscarUltMov
 from Model.especificarBanco import especificarBanco
 from Model.especificarTipoTransfCateg import especificarTipoTransfCateg
 from Model.especificarCateg import especificarCateg
@@ -40,6 +41,15 @@ def testeMenu(msg: types.Message):
 def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando for digitado /menu
     tecladoMenuPrincipal = types.InlineKeyboardMarkup(row_width=2) #Cria teclado do Menu
 
+    saldoPrincipal = 0
+    cofre = 0
+
+    for banco in listarBancos():
+        saldoPrincipal += banco['saldoBanco']
+        cofre += banco['cofrinhoBanco']
+
+    patrimonio = saldoPrincipal + cofre
+
     botao_nome = types.InlineKeyboardButton(
         "Bancos 🪙",
         callback_data="manager_banco" #ID do Botão
@@ -52,7 +62,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
     tecladoMenuPrincipal.add(botao_nome, botao_sobre) #Adiciona os botões
 
     bot.send_message(msg.chat.id, #Informa o chat que o Bot vai enviar a mensagem
-                     f"<b>PENGUIN BOT - MENU PRINCIPAL</b>\nFala meu nobre, seja Bem-vindo, \nsou o PenguinBot.🐧 Do que precisas hoje?", 
+                     f"<b>PENGUIN BOT - MENU PRINCIPAL</b>\nFala meu nobre, seja Bem-vindo!\nSou o PenguinBot 🐧. Do que precisas hoje?\n\n━━━━━━━━━━━━━━\n💰 Patrimônio: R$ {patrimonio}\n💵 Em contas: R$ {saldoPrincipal}\n🐷 Nos cofres: R$ {cofre}\n━━━━━━━━━━━━━━\n\n🕐 Última: {buscarUltMov()['emojiCategoria']} {buscarUltMov()['categoria']} · R$ {buscarUltMov()['valorMov']}\n", 
                      reply_markup=tecladoMenuPrincipal, #Aplica o teclaod na mensagem
                      parse_mode="HTML") #Faz aceitar marcações HTML
 
