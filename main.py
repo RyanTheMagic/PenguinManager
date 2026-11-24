@@ -139,7 +139,8 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                 bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SAQUE 💵⛔</b>\nEscolha a categória para qual você vai investir\no valor do Saque:",
                                 reply_markup=tecladoCategSaque,
                                 parse_mode="HTML")
-                @bot.callback_query_handler(func=lambda clique: True)
+
+                @bot.callback_query_handler(func=lambda clique: especificarCateg(int(clique.data.split(':')[0]))['tipoTransf'] == 0)
                 def digitarValorSaque(clique: types.CallbackQuery):
                     bot.answer_callback_query(clique.id)
                     bancoID = int(clique.data.split(':')[1])
@@ -186,9 +187,11 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
 
                 tecladoCategDepos.add(*botoes)
 
-                bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - DEPÓSITO 💵❇️</b>\nEscolha a categória para qual você vai investir\no valor do Depósito:",
+                bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - DEPÓSITO 💵❇️</b>\n\nEscolha a categória para qual você vai investir\no valor do Depósito:",
                                  parse_mode="HTML",
                                  reply_markup=tecladoCategDepos)
+
+                print(clique.data.split(':')[0] == '11')
                 # -- SALDO EM CONTA
                 @bot.callback_query_handler(func=lambda clique: int(clique.data.split(':')[0]) == 11)
                 def digitarValorDepSald(clique: types.CallbackQuery):
