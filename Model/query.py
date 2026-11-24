@@ -6,10 +6,8 @@ def query():
     cursor = conexao.cursor()
 
     cursor.execute('''
-    select
-    *
-    from relatorio_movimentacao
-''')
+    insert into CATEGORIAS_TIPOOPER (tipooperID, nomeTipoOper) values (?,?)
+''', (4,'Transf. Entre Bancos'))
 
     conexao.commit()
 
