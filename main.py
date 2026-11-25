@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import telebot
+from datetime import datetime
 from telebot import types
 from Model.transferenciaBanco import transferenciaBanco
 from Model.transferenciaBanco import saqueBanco
@@ -13,6 +14,8 @@ from Model.buscarUltMov import buscarUltMov
 from Model.especificarBanco import especificarBanco
 from Model.especificarTipoTransfCateg import especificarTipoTransfCateg
 from Model.especificarCateg import especificarCateg
+from Model.buscarMovTipoOper import buscarMovTipoOper
+
 
 load_dotenv()
 
@@ -68,12 +71,13 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
 
     @bot.callback_query_handler(func=lambda clique: clique.data  == 'manager_banco') #Executa essa função quando o clique for no botao de callback_data = manager_banco
     def gerBancoMenu(clique: types.CallbackQuery): #informa a função que vai ser chamada quando o filtro aceitar o clique
+        mes_ano = datetime.now().strftime('%Y-%m') #Formata no formato '2026-11'
         bot.answer_callback_query(clique.id) #Para o carregamento quando o bot receber o clique.id
         tecladoBancoMenu = types.InlineKeyboardMarkup(row_width=2)
         resposta = []
 
         for banco in listarBancos():
-            resposta.append(f"{banco['nomeBanco']} {banco['emojiBanco']} - Saldo 💵: <b>R${banco['saldoBanco']}</b>")
+            resposta.append(f"{banco['nomeBanco']} {banco['emojiBanco']}\n💵 Conta : R$ {banco['saldoBanco']}\n🐷 Cofre: R$ {banco['cofrinhoBanco']}\n")
 
             botaoBanco = types.InlineKeyboardButton(
                 f"{banco['nomeBanco']} {banco['emojiBanco']}",
@@ -85,14 +89,18 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
         textoFinal = "\n".join(resposta)
 
 
-        bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - MENU BANCO</b>\nSALDOS BANCÁRIOS\n\n{textoFinal}\n\nEscolha o banco de sua preferência:",
+        bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - MENU BANCOS</b>\nCOLÔNIA DE CONTAS\n\n━━━━━━━━━━━━━━\n{textoFinal}━━━━━━━━━━━━━━\n\n<b>Dados Mensais:</b>\n✅ Entrada: R$ {buscarMovTipoOper(1,mes_ano)['total']}\n❌ Saida: R$ {buscarMovTipoOper(0,mes_ano)['total']} \n\nEscolha o banco de sua preferência:",
                          reply_markup=tecladoBancoMenu,
                          parse_mode="HTML")
         # ---- MENU GERAL BANCOS -- 
         @bot.callback_query_handler(func=lambda clique: clique.data.isdigit())
         def menuEspecBanco(clique: types.CallbackQuery):
             bot.answer_callback_query(clique.id)
-            bancoID = clique.data #Passa o ID do Banco na variavel
+            mes_ano = datetime.now().strftime('%Y-%m')
+            bancoID = int(clique.data) #Passa o ID do Banco na variavel
+            saldo = especificarBanco(bancoID)['saldoBanco']
+            cofre = especificarBanco(bancoID)['cofrinhoBanco']
+            patrimonio = saldo + cofre
 
             tecladoEspecBanco = types.InlineKeyboardMarkup(row_width=2)
 
@@ -123,7 +131,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
 
             tecladoEspecBanco.add(botaoSaque, botaoDeposito,botaoGuardarDin,botaoResgatarCofre,botaoTransfBanco)
 
-            bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - {especificarBanco(int(bancoID))['nomeBanco'].upper()} {especificarBanco(int(bancoID))['emojiBanco']}</b>\nOlá, você está realizando Operações no Banco do {especificarBanco(int(bancoID))['nomeBanco']} {especificarBanco(int(bancoID))['emojiBanco']}",
+            bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - {especificarBanco(bancoID)['nomeBanco'].upper()} {especificarBanco(bancoID)['emojiBanco']}</b>\n<i>Olá, Seja Bem-vindo ao {especificarBanco(bancoID)['nomeBanco']}!</i>\n\n━━━━━━━━━━━━━━\n💰 Patrimônio: R$ {patrimonio}\n💵 Conta: R$ {saldo}\n🐷 Cofre: R$ {cofre}\n✅ Entrada: R$ {buscarMovTipoOper(1,mes_ano,bancoID)['total']}\n❌ Saida: R$ {buscarMovTipoOper(0,mes_ano,bancoID)['total']}\n🕐 Última: {buscarUltMov(bancoID)['emojiCategoria']} <b>{buscarUltMov(bancoID)['categoria']} · R$ {buscarUltMov(bancoID)['valorMov']}</b>\n━━━━━━━━━━━━━━\n\nQual operação deseja realizar?",
                              reply_markup=tecladoEspecBanco,
                              parse_mode="HTML")
 
