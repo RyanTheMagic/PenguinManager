@@ -44,7 +44,7 @@ def buscarMovTipoOper(tipoOper: int, mes_ano: datetime, bancoID=None):
     resultado = cursor.fetchone()
 
     if resultado is None:
-        return {'total': 0}
+        return {'total': 0.0}
     else:
         cursor.close()
         conexao.close()

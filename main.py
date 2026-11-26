@@ -15,6 +15,7 @@ from Model.especificarBanco import especificarBanco
 from Model.especificarTipoTransfCateg import especificarTipoTransfCateg
 from Model.especificarCateg import especificarCateg
 from Model.buscarMovTipoOper import buscarMovTipoOper
+from Model.buscarCategMes import buscarCategMes
 
 
 load_dotenv()
@@ -65,7 +66,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
     tecladoMenuPrincipal.add(botao_nome, botao_sobre) #Adiciona os botões
 
     bot.send_message(msg.chat.id, #Informa o chat que o Bot vai enviar a mensagem
-                     f"<b>PENGUIN BOT - MENU PRINCIPAL</b>\nFala meu nobre, seja Bem-vindo!\nSou o PenguinBot 🐧. Do que precisas hoje?\n\n━━━━━━━━━━━━━━\n💰 Patrimônio: R$ {patrimonio}\n💵 Em contas: R$ {saldoPrincipal}\n🐷 Nos cofres: R$ {cofre}\n━━━━━━━━━━━━━━\n\n🕐 Última: {buscarUltMov()['emojiCategoria']} {buscarUltMov()['categoria']} · R$ {buscarUltMov()['valorMov']}\n", 
+                     f"<b>PENGUIN BOT - MENU PRINCIPAL</b>\nFala meu nobre, seja Bem-vindo!\nSou o PenguinBot 🐧. Do que precisas hoje?\n\n━━━━━━━━━━━━━━\n💰 Patrimônio: R$ {patrimonio}\n💵 Em contas: R$ {saldoPrincipal}\n🐷 Nos cofres: R$ {cofre}\n━━━━━━━━━━━━━━\n\n🕐 Última: {buscarUltMov()['emojiCategoria']} <b>{buscarUltMov()['categoria']} · R$ {buscarUltMov()['valorMov']}</b>\n", 
                      reply_markup=tecladoMenuPrincipal, #Aplica o teclaod na mensagem
                      parse_mode="HTML") #Faz aceitar marcações HTML
 
@@ -154,7 +155,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
 
                 tecladoCategSaque.add(*botoes)
 
-                bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SAQUE 💵⛔</b>\nEscolha a categória para qual você vai investir\no valor do Saque:",
+                bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SAQUE 💵⛔</b>\nEm qual categoria esse gasto entra?",
                                 reply_markup=tecladoCategSaque,
                                 parse_mode="HTML")
 
@@ -164,7 +165,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                     bancoID = int(clique.data.split(':')[1])
                     categID = int(clique.data.split(':')[0])
 
-                    mensagem = bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SAQUE 💵⛔</b>\nSaldo Atual: R${especificarBanco(bancoID)['saldoBanco']}\n\nDigite o valor do Saque que deseja realizar:",
+                    mensagem = bot.send_message(clique.message.chat.id,f"<b>PENGUIN BOT - SAQUE 💵⛔</b>\n\n<b>Banco: {especificarBanco(bancoID)['nomeBanco']} {especificarBanco(bancoID)['emojiBanco']}\nCategoria: {especificarCateg(categID)['nomeCategoria']} {especificarCateg(categID)['emojiCategoria']}\n💵 Saldo Disponível: R$ {especificarBanco(bancoID)['saldoBanco']}</b>\n\nDigite o valor do saque. Ex: 25.50",
                                                 parse_mode="HTML")
 
                     bot.register_next_step_handler(mensagem, processarValorSaque, bancoID, categID)
@@ -174,6 +175,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                 def processarValorSaque(msg: types.Message, bancoID: int, categID: int):
                     saldoAtual = especificarBanco(bancoID)['saldoBanco']
                     valorSaque = float(msg.text)
+                    mes_ano = datetime.now().strftime('%Y-%m')
 
                     if (valorSaque > saldoAtual):
                         bot.send_message(msg.chat.id,f'<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\nSaldo Atual: {saldoAtual}\nValor Saque: {valorSaque}\n\nSaldo Insuficiente para realização do Saque.',
@@ -183,7 +185,7 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                                          parse_mode="HTML")
                     else:
                         saqueBanco(valorSaque,bancoID, categID)
-                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SAQUE REALIZADO 💵⛔</b>\n\nBanco: {especificarBanco(bancoID)['nomeBanco']} {especificarBanco(bancoID)['emojiBanco']}\nCategoria: {especificarCateg(categID)['nomeCategoria']} {especificarCateg(categID)['emojiCategoria']}\nSaque: R${valorSaque}\nSaldo Atual: R${especificarBanco(bancoID)['saldoBanco']}",
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - SAQUE REALIZADO 💵⛔</b>\n\n<b>{especificarCateg(categID)['nomeCategoria']} {especificarCateg(categID)['emojiCategoria']}  ·  R$ {valorSaque}\n{especificarBanco(bancoID)['nomeBanco']} {especificarBanco(bancoID)['emojiBanco']}: R$ {saldoAtual} → R$ {especificarBanco(bancoID)['saldoBanco']}\n\n{especificarCateg(categID)['emojiCategoria']} {especificarCateg(categID)['nomeCategoria']} este mês: R$ {buscarCategMes(categID, mes_ano)['total']}</b>",
                                          parse_mode="HTML")
 
             ## ----- FUNÇÃO DEPOSITO ----

@@ -18,7 +18,7 @@ def buscarUltMov(bancoID=None):
         ) as data_hora_convertida,
         VIEW_MOVIMENTACOES.categID,
         case 
-        when VIEW_MOVIMENTACOES.categID = 0
+        when VIEW_MOVIMENTACOES.tipoOperID = 0
         then
         -ABS(VIEW_MOVIMENTACOES.valorMov)
         else
@@ -27,6 +27,7 @@ def buscarUltMov(bancoID=None):
         VIEW_MOVIMENTACOES.categoria,
         categorias_transferencia.emojiCategoria,
         VIEW_MOVIMENTACOES.banco,
+        VIEW_MOVIMENTACOES.tipoOperID,
         VIEW_MOVIMENTACOES.tipoOperacao
         from VIEW_MOVIMENTACOES
 
