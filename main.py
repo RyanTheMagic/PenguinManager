@@ -178,10 +178,10 @@ def mostrarMenuPrincipal(msg:types.Message): #Define que o menu vai abrir quando
                     mes_ano = datetime.now().strftime('%Y-%m')
 
                     if (valorSaque > saldoAtual):
-                        bot.send_message(msg.chat.id,f'<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\nSaldo Atual: {saldoAtual}\nValor Saque: {valorSaque}\n\nSaldo Insuficiente para realização do Saque.',
+                        bot.send_message(msg.chat.id,f'<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\n<b>Valor: R$ {valorSaque}\n💵 Conta: R$ {saldoAtual}\n━━━━━━━━━━━━━━\n<i>⚠️ Faltam R$ {valorSaque - saldoAtual} para realização do Saque</i></b>',
                                          parse_mode="HTML")
                     elif (valorSaque <= 0):
-                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\nValor do Saque não pode ser menor ou igual a 0",
+                        bot.send_message(msg.chat.id,f"<b>PENGUIN BOT - FALHA NO SAQUE 💵⛔</b>\n\n<b>Valor: R$ {valorSaque}\n💵 Conta: R$ {saldoAtual}\n━━━━━━━━━━━━━━\n<i>⚠️ Valor do Saque não pode ser menor ou igual a 0</i></b>",
                                          parse_mode="HTML")
                     else:
                         saqueBanco(valorSaque,bancoID, categID)
